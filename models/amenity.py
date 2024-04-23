@@ -1,29 +1,32 @@
 #!/usr/bin/python3
-"""Defines the Amenity class."""
-from models.base_model import Base
-from models.base_model import BaseModel
-from sqlalchemy import Table, Column, Integer, ForeignKey
-from sqlalchemy import String
+"""This is the amenity class"""
+from models.base_model import BaseModel, Base
+from os import getenv
+from sqlalchemy import Column, Table, String, ForeignKey
 from sqlalchemy.orm import relationship
-from models.associations import place_amenity
 
-place_amenity = Table('place_amenity', Base.metadata,
-    Column('place_id', Integer, ForeignKey('places.id')),
-    Column('amenity_id', Integer, ForeignKey('amenities.id')),
-    extend_existing=True
-)
+place_amenity = Table("place_amenity", Base.metadata,
+                      Column("place_id", String(60),
+                             ForeignKey("places.id"),
+                             primary_key=True, nullable=False),
+                      Column("amenity_id", String(60),
+                             ForeignKey("amenities.id"),
+                             primary_key=True, nullable=False))
+
 
 class Amenity(BaseModel, Base):
-    """Represents an Amenity for a MySQL database.
-
-    Inherits from SQLAlchemy Base and links to the MySQL table amenities.
+    """Represent an Amenity for a MySQL database.
 
     Attributes:
-        __tablename__ (str): The name of the MySQL table to store Amenities.
-        name (sqlalchemy String): The amenity name.
-        place_amenities (sqlalchemy relationship): Place-Amenity relationship.
-    """
-    __tablename__ = "amenities"
-    name = Column(String(128), nullable=False)
+        name: The Amenity name
+        place_amenities (relationship): The Place - Amenity relationship.
 
-    places = relationship("Place", secondary=place_amenity, back_populates="amenities")
+    """
+
+    __tablename__ = "amenities"
+
+    if getenv('HBNB_TYPE_STORAGE') == 'db':
+        name = Column(String(128), nullable=False)
+        place_amenities = relationship('Place', secondary=place_amenity)
+    else:
+        name = ''
